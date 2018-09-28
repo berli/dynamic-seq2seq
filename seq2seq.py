@@ -165,4 +165,8 @@ if __name__ == '__main__':
         if sys.argv[1] == 'train':
             seq.train()
         elif sys.argv[1] == 'infer':
-            print seq.predict("呵呵")  
+            if( len(sys.argv) == 3):
+                print 'argv[2]=',sys.argv[2]
+                print seq.predict(sys.argv[2])
+            else:
+                print seq.predict("天气")  
