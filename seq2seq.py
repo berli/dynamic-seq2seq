@@ -135,17 +135,26 @@ class Seq2seq():
         }
         return feed_dict
 
-    def predict(self, input_str):
-        # print "Me > ", input_str
-        segments = jieba.lcut(input_str)
-        vec = [self.char_to_vec.get(seg, 3) for seg in segments]
-        feed = self.make_inference_fd(vec)
-        logits = self.sess.run([self.model.translations], feed_dict=feed)
-        output = logits[0][0].tolist()
-        output_str = "".join([self.vec_to_char.get(i, "_UN_") for i in output])
-        # check action
-        final_output = self.format_output(output_str, input_str)
-        # print "AI > ", final_output
+    def predict(self):
+        sys.stdout.write("> ")
+        sys.stdout.flush()
+        input_seq = sys.stdin.readline()
+        while input_seq:
+            segments = jieba.lcut(input_seq.strip())
+            vec = [self.char_to_vec.get(seg, 3) for seg in segments]
+            feed = self.make_inference_fd(vec)
+
+            logits = self.sess.run([self.model.translations], feed_dict=feed)
+
+            output = logits[0][0].tolist()
+            output_str = "".join([self.vec_to_char.get(i, "_UN_") for i in output])
+            # check action
+            final_output = self.format_output(output_str, input_str)
+            print "AI > ", final_output
+            
+            sys.stdout.write("> ")
+            sys.stdout.flush()
+            input_seq = sys.stdin.readline()
         return final_output
 
     @check_action
@@ -164,9 +173,6 @@ if __name__ == '__main__':
         seq = Seq2seq()
         if sys.argv[1] == 'train':
             seq.train()
-        elif sys.argv[1] == 'infer':
+        elif sys.argv[1] == 'predict':
             if( len(sys.argv) == 3):
-                print 'argv[2]=',sys.argv[2]
-                print seq.predict(sys.argv[2])
-            else:
-                print seq.predict("天气")  
+                seq.predict()
